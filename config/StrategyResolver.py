@@ -11,11 +11,10 @@ class StrategyResolver(StrategyCoreResolver):
         (Strategy Must Implement)
         """
         # E.G
-        # strategy = self.manager.strategy
-        # return {
-        #     "gauge": strategy.gauge(),
-        #     "mintr": strategy.mintr(),
-        # }
+        strategy = self.manager.strategy
+        return {
+            "aToken": strategy.aToken(),
+        }
 
         return {}
 
@@ -24,21 +23,21 @@ class StrategyResolver(StrategyCoreResolver):
         Specifies extra check for ordinary operation on withdrawal
         Use this to verify that balances in the get_strategy_destinations are properly set
         """
-        assert False
+        assert after.balances("want", "aToken") < before.balances("want", "aToken")
 
     def hook_after_confirm_deposit(self, before, after, params):
         """
         Specifies extra check for ordinary operation on deposit
         Use this to verify that balances in the get_strategy_destinations are properly set
         """
-        assert False
+        assert True
 
     def hook_after_earn(self, before, after, params):
         """
         Specifies extra check for ordinary operation on earn
         Use this to verify that balances in the get_strategy_destinations are properly set
         """
-        assert False
+        assert after.balances("want", "aToken") > before.balances("want", "aToken")
 
     def confirm_harvest(self, before, after, tx):
         """
@@ -72,4 +71,10 @@ class StrategyResolver(StrategyCoreResolver):
 
         (Strategy Must Implement)
         """
-        assert True
+        assert after.get("strategy.isTendable") == True
+
+        assert before.get("strategy.balanceOfWant") > 0
+
+        assert after.get("strategy.balanceOfWant") == 0
+
+        assert after.get("strategy.balanceOfPool") > before.get("strategy.balanceOfPool")
